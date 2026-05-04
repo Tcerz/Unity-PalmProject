@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a1dd16537755ee40bd5dccf72903742, type: 3}
+  m_Name: SawitData
+  m_EditorClassIdentifier: 
+  itemName: 
+  prefabToPlant: {fileID: 663264401514612626, guid: 9d46600352a5aa24da2448d9ae66fb9d, type: 3}
+  visualInHand: {fileID: 919132149155446097, guid: 880d0caa2176d0e4abbf709b6de76f10, type: 3}
