@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1ac0dfce7d8413344bacc7d0b275391d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 35346
+  packageName: House Pack
+  packageVersion: 1.0
+  assetPath: Assets/HousePack/Scene/Materials/Grid.mat
+  uploadId: 60630

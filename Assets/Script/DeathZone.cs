@@ -2,24 +2,36 @@ using UnityEngine;
 
 public class DeathZone : MonoBehaviour
 {
-    // Titik awal atau posisi aman untuk respawn
-    public Vector3 respawnPoint = new Vector3(0f, 1f, 0f);
+    [Header("Settings")]
+    [Tooltip("Taruh Empty Object untuk titik aman di sini")]
+    public Transform respawnPoint;
 
     private void OnTriggerEnter(Collider other)
     {
-        // Mengecek apakah yang masuk ke zona ini adalah Player
+        // Deteksi apakah yang jatuh adalah Player
         if (other.CompareTag("Player"))
         {
-            // Karena kita menggunakan Character Controller, kita perlu mematikannya sejenak
-            // agar posisi player bisa dipindahkan secara instan tanpa konflik fisik.
-            CharacterController cc = other.GetComponent<CharacterController>();
-
-            if (cc != null)
-            {
-                cc.enabled = false;
-                other.transform.position = respawnPoint;
-                cc.enabled = true;
-            }
+            RespawnPlayer(other.gameObject);
         }
+    }
+
+    void RespawnPlayer(GameObject player)
+    {
+        CharacterController cc = player.GetComponent<CharacterController>();
+
+        if (cc != null)
+        {
+            // Matikan CC agar posisi bisa dipindahkan instan
+            cc.enabled = false;
+            player.transform.position = respawnPoint.position;
+            cc.enabled = true;
+        }
+        else
+        {
+            // Jika tidak pakai CC, langsung pindah posisi
+            player.transform.position = respawnPoint.position;
+        }
+
+        //Debug.Log("Player respawned ke: " + respawnPoint.name);
     }
 }

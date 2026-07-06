@@ -5,123 +5,130 @@ using System.Collections.Generic;
 
 public class TruckSawitManager : MonoBehaviour
 {
-    [Header("Settings")]
     public GameObject tumpukanSawitVisual;
-
     private NavMeshAgent agent;
-    private NavMeshObstacle obstacle; // Tambahkan ini agar tidak error
+    private Transform targetQueue;
+    private bool sedangAntre = false;
+    private bool sedangMisi = false;
 
-    void Awake()
+    public bool telahLolosPemeriksaan = false;
+    public bool batalMisi = false;
+    public static int jumlahTrukAktif = 0;
+    public TruckData dataTruk;
+    public TruckData myData; // Data Asli (untuk timbangan)
+    public TruckData dataDokumen;
+
+    void OnEnable() { jumlahTrukAktif++; }
+    void OnDisable() { jumlahTrukAktif--; }
+
+    void Awake() { agent = GetComponent<NavMeshAgent>(); }
+
+    // Panggil ini dari KebunManager untuk "Membangunkan" truk
+    public void ResetTrukUntukMisiBaru()
     {
-        agent = GetComponent<NavMeshAgent>();
-        obstacle = GetComponent<NavMeshObstacle>(); // Ambil komponen obstacle
+        sedangMisi = false;
+        telahLolosPemeriksaan = false;
+        batalMisi = false;
 
-        if (agent != null) agent.enabled = false;
-
-        // Setup awal Obstacle: Matikan dulu, aktifkan Carving
-        if (obstacle != null)
-        {
-            obstacle.enabled = false;
-            obstacle.carving = true;
-        }
-    }
-
-    public void IsiMuatanFull()
-    {
-        if (tumpukanSawitVisual != null)
-        {
-            tumpukanSawitVisual.SetActive(true);
-            tumpukanSawitVisual.transform.SetParent(this.transform);
-            tumpukanSawitVisual.transform.localPosition = new Vector3(0, 1.3f, -0.5f);
-            tumpukanSawitVisual.transform.localRotation = Quaternion.identity;
-        }
-    }
-
-    public void MulaiMisi(List<Transform> points)
-    {
         if (agent != null) agent.enabled = true;
+        IsiMuatanFull();
 
-        NavMeshHit hit;
-        if (NavMesh.SamplePosition(transform.position, out hit, 5.0f, NavMesh.AllAreas))
+        if (GerbangQueueManager.Instance != null)
+            GerbangQueueManager.Instance.DaftarkanTruk(this);
+
+        PengecekanMuatan cek = GetComponentInChildren<PengecekanMuatan>();
+        if (cek != null) cek.SetRandomFruit();
+    }
+
+    public void IsiMuatanFull() { if (tumpukanSawitVisual) tumpukanSawitVisual.SetActive(true); }
+
+    public void PergiKeQueue(Transform titikQueue)
+    {
+        if (sedangMisi) return;
+        targetQueue = titikQueue;
+        sedangAntre = true;
+        agent.isStopped = false;
+        agent.SetDestination(targetQueue.position);
+    }
+
+    void Update()
+    {
+        if (sedangAntre && targetQueue != null && agent.enabled)
         {
-            agent.Warp(hit.position);
+            if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+                agent.isStopped = true;
         }
-
-        StartCoroutine(LogikaPerjalanan(points));
+    }
+    public void SetData(TruckData data)
+    {
+        myData = data;
     }
 
-    IEnumerator LogikaPerjalanan(List<Transform> p)
+    public void InitializeTruk(TruckData data)
     {
-        yield return new WaitForEndOfFrame();
+        this.dataTruk = data;
+        this.dataDokumen = new TruckData();
 
-        // 1. KE POS MASUK
-        yield return StartCoroutine(JalanKeTitik(p[0].position));
-        yield return new WaitForSeconds(2f);
+        // Salin data dasar
+        this.dataDokumen.noRegis = data.noRegis;
+        this.dataDokumen.namaPengemudi = data.namaPengemudi;
+        this.dataDokumen.jenisTruk = data.jenisTruk;
+        this.dataDokumen.perusahaan = data.perusahaan;
+        this.dataDokumen.kelayakan = data.kelayakan;
 
-        // 2. KE TIMBANGAN (Acak 1 atau 2)
-        int pilihTimbangan = Random.Range(1, 3);
-
-        // Saat menimbang, kita gunakan logika antrean
-        yield return StartCoroutine(JalanKeTitik(p[pilihTimbangan].position));
-
-        // --- LOGIKA ANTREAN DI TIMBANGAN ---
-        AktifkanModeAntre(true);
-        yield return new WaitForSeconds(5f); // Waktu nimbang
-        AktifkanModeAntre(false);
-        // -----------------------------------
-
-        // 3. KE DROP SAWIT
-        yield return StartCoroutine(JalanKeTitik(p[3].position));
-
-        // Proses Bongkar
-        AktifkanModeAntre(true);
-        float waktuBongkar = Random.Range(10f, 20f);
-        yield return new WaitForSeconds(waktuBongkar);
-        if (tumpukanSawitVisual != null) tumpukanSawitVisual.SetActive(false);
-        AktifkanModeAntre(false);
-
-        // 4. KE POS KELUAR
-        yield return StartCoroutine(JalanKeTitik(p[4].position));
-
-        // 5. KE DESTROY POINT
-        yield return StartCoroutine(JalanKeTitik(p[5].position));
-
-        Destroy(gameObject);
-    }
-
-    // Fungsi pembantu agar kode tidak panjang berulang-ulang
-    IEnumerator JalanKeTitik(Vector3 tujuan)
-    {
-        agent.SetDestination(tujuan);
-        yield return new WaitUntil(() => SampaiTujuan());
-    }
-
-    void AktifkanModeAntre(bool aktif)
-    {
-        if (aktif)
+        // Logika 25% kemungkinan (1 dari 4) berat dokumen dimanipulasi
+        // Menggunakan Random.value (0.0 sampai 1.0)
+        if (Random.value < 0.25f)
         {
-            agent.enabled = false;
-            if (obstacle != null) obstacle.enabled = true;
+            // Beri selisih acak antara 500 hingga 1000 kg agar terlihat jelas
+            int selisih = Random.Range(500, 1000);
+            this.dataDokumen.beratTrukAsli = data.beratTrukAsli + selisih;
         }
         else
         {
-            if (obstacle != null) obstacle.enabled = false;
-            agent.enabled = true;
+            this.dataDokumen.beratTrukAsli = data.beratTrukAsli;
         }
+
+        Debug.Log("Truk: " + data.noRegis + " | Asli: " + dataTruk.beratTrukAsli + " | Dokumen: " + dataDokumen.beratTrukAsli);
     }
 
-    bool SampaiTujuan()
+    public void MulaiMisi(List<Transform> waypoint)
     {
-        if (agent == null || !agent.enabled || !agent.isOnNavMesh) return false;
+        if (sedangMisi) return;
+        sedangMisi = true;
+        sedangAntre = false;
+        StartCoroutine(JalankanMisi(waypoint));
+    }
 
-        if (!agent.pathPending)
+    IEnumerator JalankanMisi(List<Transform> p)
+    {
+        yield return StartCoroutine(JalanKeTitik(p[0].position));
+        GerbangQueueManager.Instance.SetTrukDiPos(this);
+
+        while (!telahLolosPemeriksaan && !batalMisi) yield return null;
+
+        if (telahLolosPemeriksaan)
         {
-            if (agent.remainingDistance <= agent.stoppingDistance)
-            {
-                if (!agent.hasPath || agent.velocity.sqrMagnitude <= 0.1f)
-                    return true;
-            }
+            int pilih = Random.Range(1, 3);
+            yield return StartCoroutine(JalanKeTitik(p[pilih].position));
+            yield return new WaitForSeconds(5);
+            yield return StartCoroutine(JalanKeTitik(p[3].position));
+            yield return new WaitForSeconds(10);
+            if (tumpukanSawitVisual) tumpukanSawitVisual.SetActive(false);
         }
-        return false;
+
+        yield return StartCoroutine(JalanKeTitik(p[4].position));
+        yield return StartCoroutine(JalanKeTitik(p[5].position));
+
+        // GANTI DESTROY DENGAN INI:
+        gameObject.SetActive(false);
+    }
+
+    IEnumerator JalanKeTitik(Vector3 tujuan)
+    {
+        agent.isStopped = false;
+        agent.SetDestination(tujuan);
+        while (agent.pathPending || agent.remainingDistance > agent.stoppingDistance)
+            yield return null;
     }
 }

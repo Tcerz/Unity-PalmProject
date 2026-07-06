@@ -27,7 +27,7 @@ public class VoidReset : MonoBehaviour
                 other.transform.position = spawnPoint.position;
             }
 
-            Debug.Log("Player jatuh ke void! Mengembalikan ke posisi aman.");
+            //Debug.Log("Player jatuh ke void! Mengembalikan ke posisi aman.");
         }
     }
 }

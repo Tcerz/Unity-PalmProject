@@ -11,29 +11,44 @@ public class MouseLook : MonoBehaviour
     public float fovSpeed = 5f;
 
     [Header("Render Distance Settings")]
-    public float normalDistance = 1000f;
-    public float sprintDistance = 1500f;
+    public float normalDistance = 200f;
+    public float sprintDistance = 400f;
     public float distanceSpeed = 5f;
 
-    [Header("Directional Culling Settings")]
-    public Transform terrain; // drag terrain ke sini
-    public float maxViewAngle = 100f; // sudut pandang depan
+    [Header("Layer-Based Culling")]
+    public float jarakBuahSawit = 30f;
+    public float jarakPohonDetail = 100f;
+
+    [Header("Fog Settings")]
+    public bool useFog = true;
+    public Color fogColor = new Color(0.5f, 0.5f, 0.5f);
 
     float xRotation = 0f;
     Camera cam;
+    float[] distances = new float[32];
+
+    public bool canLook = true;
 
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
         cam = GetComponent<Camera>();
+        UpdateCullDistances();
 
-        cam.fieldOfView = baseFOV;
-        cam.farClipPlane = normalDistance;
+        if (useFog)
+        {
+            RenderSettings.fog = true;
+            RenderSettings.fogColor = fogColor;
+            RenderSettings.fogMode = FogMode.Linear;
+        }
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     void Update()
     {
-        // Mouse Look
+        if (!canLook) return;
+
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
@@ -43,22 +58,43 @@ public class MouseLook : MonoBehaviour
         transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
         playerBody.Rotate(Vector3.up * mouseX);
 
-        // FOV
-        float targetFOV = Input.GetKey(KeyCode.LeftShift) ? sprintFOV : baseFOV;
+        bool isSprinting = Input.GetKey(KeyCode.LeftShift);
+
+        float targetFOV = isSprinting ? sprintFOV : baseFOV;
         cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFOV, fovSpeed * Time.deltaTime);
 
-        // Render Distance
-        float targetDistance = Input.GetKey(KeyCode.LeftShift) ? sprintDistance : normalDistance;
+        float targetDistance = isSprinting ? sprintDistance : normalDistance;
         cam.farClipPlane = Mathf.Lerp(cam.farClipPlane, targetDistance, distanceSpeed * Time.deltaTime);
 
-        // 🔥 Direction-based terrain rendering
-        if (terrain != null)
+        if (useFog)
         {
-            Vector3 dirToTerrain = (terrain.position - cam.transform.position).normalized;
-            float angle = Vector3.Angle(cam.transform.forward, dirToTerrain);
+            RenderSettings.fogEndDistance = cam.farClipPlane;
+            RenderSettings.fogStartDistance = cam.farClipPlane * 0.5f;
+        }
 
-            // aktif hanya kalau di depan kamera
-            terrain.gameObject.SetActive(angle < maxViewAngle);
+        UpdateCullDistances();
+    }
+
+    void UpdateCullDistances()
+    {
+        distances[10] = jarakBuahSawit;
+        distances[11] = jarakPohonDetail;
+        cam.layerCullDistances = distances;
+    }
+
+    public void SetPaused(bool paused)
+    {
+        canLook = !paused;
+
+        if (paused)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
     }
 }

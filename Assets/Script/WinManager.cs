@@ -5,13 +5,13 @@ public class WinManager : MonoBehaviour
 {
     public void MainLagi()
     {
-        // Memuat ulang level pabrik (Index 1 di Build Settings)
-        SceneManager.LoadScene(1);
+        // Ganti ke index 2 agar langsung ke level "Proto Road"
+        SceneManager.LoadScene(2);
     }
 
     public void KeMenuUtama()
     {
-        // Kembali ke menu awal (Index 0 di Build Settings)
-        SceneManager.LoadScene(0);
+        // Ganti ke index 1 sesuai posisi "MenuUtama" di Build Settings kamu
+        SceneManager.LoadScene(1);
     }
 }

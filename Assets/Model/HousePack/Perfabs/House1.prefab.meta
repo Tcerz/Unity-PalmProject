@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f5d33a5c392e75c4bb57698e92422f9e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 35346
+  packageName: House Pack
+  packageVersion: 1.0
+  assetPath: Assets/HousePack/Perfabs/House1.prefab
+  uploadId: 60630

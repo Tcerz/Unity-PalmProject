@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8274818021435486156
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1489703704871309289}
+  - component: {fileID: 7186406912484521924}
+  m_Layer: 0
+  m_Name: CekBuah
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1489703704871309289
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8274818021435486156}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 141.403, z: -1.65}
+  m_LocalScale: {x: 3, y: 1, z: 5}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7186406912484521924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8274818021435486156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48fc16f7ada5ce04bb499fe2c1a61ef7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uiFruitDisplay: {fileID: 0}
+  fruitSprites:
+  - {fileID: -1467775059, guid: bcfccc615b259f4479ad421ae3ecfa6f, type: 3}
+  - {fileID: 773899607, guid: bcfccc615b259f4479ad421ae3ecfa6f, type: 3}
+  - {fileID: 436936593, guid: bcfccc615b259f4479ad421ae3ecfa6f, type: 3}
+  - {fileID: 1941012872, guid: bcfccc615b259f4479ad421ae3ecfa6f, type: 3}
+  - {fileID: -144601227, guid: bcfccc615b259f4479ad421ae3ecfa6f, type: 3}
+  - {fileID: -774698451, guid: bcfccc615b259f4479ad421ae3ecfa6f, type: 3}

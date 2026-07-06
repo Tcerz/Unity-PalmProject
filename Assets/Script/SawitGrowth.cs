@@ -23,12 +23,19 @@ public class SawitGrowth : MonoBehaviour
 
         if (!sedangBerbuah)
         {
-            buahSawit.SetActive(true);
-            sedangBerbuah = true;
+            // Minta izin ke Manager sebelum tumbuh
+            bool berhasil = KebunManager.instance.TambahLaporanBerbuah(this);
 
-            if (KebunManager.instance != null)
+            if (berhasil)
             {
-                KebunManager.instance.TambahLaporanBerbuah(this);
+                buahSawit.SetActive(true);
+                sedangBerbuah = true;
+            }
+            else
+            {
+                // Jika tidak berhasil, tunggu sebentar lalu coba lagi
+                yield return new WaitForSeconds(5f);
+                StartCoroutine(ProsesTumbuh());
             }
         }
     }
@@ -46,7 +53,7 @@ public class SawitGrowth : MonoBehaviour
 
     IEnumerator JedaSebelumTumbuhLagi()
     {
-        float jedaIstirahat = Random.Range(30f, 60f);
+        float jedaIstirahat = Random.Range(5f, 20f);
         yield return new WaitForSeconds(jedaIstirahat);
         StartCoroutine(ProsesTumbuh());
     }
